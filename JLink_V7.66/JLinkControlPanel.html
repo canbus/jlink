@@ -1,0 +1,78 @@
+<html>
+  <head>
+    <script language="javascript">
+    //
+    // What we do is:
+    // (1) We request an image from the control panel that we know to always exist
+    // (2) Via the "onerror" and "onload" callbacks of the image object, we can determine if the image load was successful or not
+    // (3) We make sure that we append some random data as parameter to the URL, to make sure that the browser does not cache the image, which could lead to incorrect "O.K." indications in case there is no control panel session running
+    //
+    /*********************************************************************
+    *
+    *       Static data
+    *
+    **********************************************************************
+    */
+    var ObjImg = new Image;
+    var NumTries = 0;
+
+    /*********************************************************************
+    *
+    *       _getRandomInt()
+    *
+    *  Function description
+    *    Returns a random integer between 0 and x
+    *
+    *  Return value
+    *    Integer between 0 and <MaxNum> - 1
+    */
+    function _getRandomInt(MaxNum) {
+      return Math.floor(Math.random() * Math.floor(MaxNum));
+    }
+
+    /*********************************************************************
+    *
+    *       _OnImgLoadError()
+    *
+    *  Function description
+    *    Callback which in called in case loading the image from the server fails
+    */
+    function _OnImgLoadError(){
+      _TryLoadImage();
+    }
+
+    /*********************************************************************
+    *
+    *       _OnImgLoadSuccess()
+    *
+    *  Function description
+    *    Callback which in called in case loading the image from the server was successful
+    */
+    function _OnImgLoadSuccess() {
+      window.location.href = "http://localhost:19080";
+    }
+
+    /*********************************************************************
+    *
+    *       _TryLoadImage()
+    *
+    *  Function description
+    *    Called when page is opened in web browser
+    */
+    function _TryLoadImage() {
+      NumTries += 1;
+      document.getElementById("PNumTries").innerHTML = "Connect tries: " + NumTries;
+      ObjImg.onerror=_OnImgLoadError;
+      ObjImg.onload=_OnImgLoadSuccess;
+      ObjImg.src="http://localhost:19080/SeggerLogo_200x.png?" + _getRandomInt(1000000);  // See (3)
+    }
+    </script>
+  </head>
+  <body onload="_TryLoadImage();">      <!-- See (1) -->
+    <p id="WelcomeText">
+      Connecting to control panel...<br>
+      This page will automatically refresh, as soon as there is a debug session running.
+    </p>
+    <p id="PNumTries"></p>
+  </body>
+</html>
