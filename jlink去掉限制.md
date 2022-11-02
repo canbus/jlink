@@ -47,4 +47,34 @@
     55F9281F  |. 50             PUSH EAX
     55F92820  |. 68 E8D63356    PUSH JLinkARM.5633D6E8        ;  ASCII "The connected J-Link (S/N %d) has been designed to 
     ```
+15. 64位破解 JLink_x64.dll,使用odbg 64位版本
+    1. 5秒的地方.搜索"The connected J-Link is defective",并定位,前后文如下:
+       ```
+        7FFC_61C6A316  |.  85C0          TEST EAX,EAX
+        7FFC_61C6A318  |.  0F85 80000000 JNE 7FFC_61C6A39E   ;<<--把JNE(0F85)改成JE(0F84)
+        7FFC_61C6A31E  |.  8D48 01       LEA ECX,[RAX+1]
+        7FFC_61C6A321  |.  E8 6A850900   CALL 00007FFC_61D02890
+        7FFC_61C6A326      FFC3          INC EBX
+        7FFC_61C6A328  |.  81FB 88130000 CMP EBX,1388
+        7FFC_61C6A32E  |.^ 7C E0         JL SHORT 7FFC_61C6A310
+        7FFC_61C6A330  |.  44:8B0D 59D3F MOV R9D,DWORD PTR [REL 7FFC_62BB7690]
+        7FFC_61C6A337  |.  48:8D05 56D3F LEA RAX,[REL 7FFC_62BB7694]              ; ASCII "J-Link V9 compiled May..."
+        7FFC_61C6A33E  |.  4C:8D05 8B2E3 LEA R8,[REL 7FFC_6200D1D0]               ; ASCII "The connected J-Link is ..."
+       ```
+    2. 往下拉一点.找到30秒的限制.如下:
+       ```
+        7FFC_61C6A3D6  |.  85C0          TEST EAX,EAX
+        7FFC_61C6A3D8  |.  75 19         JNE SHORT 7FFC_61C6A3F3  ;<<--把JNE(75)改成JMP(EB)
+        7FFC_61C6A3DA  |.  8D48 01       LEA ECX,[RAX+1]
+        7FFC_61C6A3DD  |.  E8 AE840900   CALL 00007FFC_61D02890
+        7FFC_61C6A3E2  |.  FFC3          INC EBX
+        7FFC_61C6A3E4  |.  81FB 30750000 CMP EBX,7530
+        7FFC_61C6A3EA  |.^ 7C E4         JL SHORT 7FFC_61C6A3D0
+       ```
+    3. 64位汇编和机器码的对应
+        E9 A7FEFFFF     JMP 7FFC_8D8EE009
+        E9 93FFFFFF     JMP 7FFC_8D8EE809
+        EB 02           JMP SHORT 7FFC_8D8EE551
+        74 3B           JE  SHORT 7FFC_8D8EE922
+        0F84 29010000   JE  7FFC_8D8EEC72
 
